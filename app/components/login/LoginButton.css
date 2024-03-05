@@ -1,0 +1,29 @@
+.google-login-btn {
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45%;
+    height: 40px;
+    border-radius: 8px;
+    background-color: transparent;
+    border: 3px solid #4286f491;
+    transition: all 250ms ease;
+}
+
+.google-login-btn:hover {
+    background-color: #4286f47e;
+    border: 3px solid transparent;
+    color: white;
+    scale: 1.05;
+    transform: translateY(-4px);
+    box-shadow: 0px 0px 25px 10px rgba(46, 229, 157, 0.4);
+}
+
+.google-login-icon {
+    margin-right: 12px;
+    height: 20px;
+    width: 20px;
+}

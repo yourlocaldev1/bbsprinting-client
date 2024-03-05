@@ -1,0 +1,146 @@
+.popup-layer {
+    position: fixed;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-overlay {
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: reveal 500ms ease;
+}
+
+.popup {
+    position: fixed;
+    height: 350px;
+    width: 400px;
+    background-color: white;
+    border-radius: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    animation: appear 500ms ease;
+}
+
+.popup-heading {
+    font-weight: 600;
+}
+
+.popup-close-btn {
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    width: 32px;
+    position: absolute;
+    float: right;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    background-color: transparent;
+    transition: all 250ms ease;
+}
+
+.popup-close-btn:hover {
+    rotate: 180deg;
+    opacity: 0.65;
+    scale: 1.2;
+}
+
+.popup-close-btn span {
+    font-size: 1.8rem;
+}
+
+.popup-content {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.captcha-icon {
+    user-select: none;
+    height: 80px;
+    width: 80px;
+    margin-bottom: -10px;
+}
+
+.captcha-info {
+    font-weight: 500;
+    margin-top: -1rem;
+    margin-bottom: 1.5rem;
+    color: grey;
+}
+
+.popup-closing {
+    animation: disappear 300ms ease;
+}
+
+.overlay-closing {
+    animation: unreveal 300ms ease;
+}
+
+@keyframes reveal {
+    0% {
+        backdrop-filter: none;
+        border-radius: 50%;
+        scale: 0.25;
+        opacity: 0;
+    }
+
+    100% {
+        scale: 1;
+        opacity: 1;
+    }
+}
+
+@keyframes unreveal {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes appear {
+    0% {
+        opacity: 0;
+        scale: 0;
+    }
+
+    50% {
+        opacity: 1;
+        scale: 1.25;
+    }
+
+    100% {
+        scale: 1;
+    }
+}
+
+@keyframes disappear {
+    0% {
+        scale: 1;
+        opacity: 1;
+    }
+
+    50% {
+        scale: 1.25;    
+    }
+
+    100% {
+        scale: 0;
+        opacity: 0;
+    }
+}

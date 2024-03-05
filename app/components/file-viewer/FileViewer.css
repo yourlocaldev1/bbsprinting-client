@@ -1,0 +1,118 @@
+.request-files-header {
+    display: flex;
+    font-weight: 600;
+}
+
+.request-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    padding: 12px;
+}
+
+.request-header span {
+    margin-right: 4px;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24
+}
+
+.link-header {
+    width: 25%;
+}
+
+.options-header {
+    width: 57.5%;
+}
+
+.copies-header {
+    width: 22.5%;
+}
+
+.section-divider {
+    width: 3px;
+    background-color: rgba(255, 255, 255, 0.85);
+    height: 100%;
+}
+
+.heading-divider {
+    width: 3px;
+    background-color: rgba(255, 255, 255, 0.85);
+    border-radius: 2rem 2rem 0 0;
+}
+
+.request-files-container {
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+    width: 90%;
+}
+
+.request-file {
+    border-top: 3px solid rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 100px;
+    border-radius: 12px;
+    background-color: rgba(0, 0, 0, 0.25);
+}
+
+.open-request {
+    width: 25%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.open-link-icon {
+    margin-left: 4px;
+    font-variation-settings:
+    'FILL' 0,
+    'wght' 400,
+    'GRAD' 200,
+    'opsz' 20
+  }
+
+.open-request a {
+    font-size: 1.25rem;
+    color: white;
+    text-decoration: none;
+}
+
+.open-request a:hover {
+    text-decoration: underline;
+}
+
+.request-options {
+    display: flex;
+    flex-direction: column;
+    width: 57.5%;
+    height: 100%;
+}
+
+.request-options ul {
+    padding: 0;
+    margin: auto;
+    column-count: 2;
+    list-style-position: inside;
+}
+
+.request-options ul li {
+    width: 155px;
+}
+
+.request-options ul li span {
+    position: relative;
+    left: -5px;
+}
+
+.request-copies {
+    width: 22.5%;
+    font-size: 1.5rem;
+    text-align: center;
+}

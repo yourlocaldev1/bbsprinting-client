@@ -1,0 +1,130 @@
+.modal-layer {
+    position: fixed;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: -1rem;
+}
+
+.modal-overlay {
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    height: 100%;
+    width: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    animation: modal-reveal 500ms ease;
+}
+
+.modal {
+    position: fixed;
+    background-color: #0f2027;
+    background: linear-gradient(to right, #0f2027c4, #203a4394, #2c5364cb);
+    backdrop-filter: blur(5px);
+    border-radius: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    box-shadow: rgba(255, 255, 255, 0.5) 0px 0px 40px 10px;
+    animation: modal-appear 500ms ease, show-shadow 1s ease 100ms;
+}
+
+.modal-closing {
+    animation: modal-disappear 300ms ease;
+}
+
+.modal-overlay-closing {
+    animation: modal-unreveal 300ms ease;
+}
+
+.modal-close-btn {
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 32px;
+    width: 32px;
+    position: absolute;
+    float: right;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    background-color: transparent;
+    transition: all 250ms ease;
+}
+
+.modal-close-btn:hover {
+    rotate: 180deg;
+    opacity: 0.65;
+    scale: 1.2;
+}
+
+@keyframes show-shadow {
+    0% {
+        box-shadow: rgba(255, 255, 255, 0) 0px 0px 40px 10px;
+    }
+
+    100% {
+        box-shadow: rgba(255, 255, 255, 0.5) 0px 0px 40px 10px;
+    }
+}
+
+@keyframes modal-reveal {
+    0% {
+        backdrop-filter: none;
+        border-radius: 50%;
+        scale: 0.25;
+        opacity: 0;
+    }
+
+    100% {
+        scale: 1;
+        opacity: 1;
+    }
+}
+
+@keyframes modal-unreveal {
+    0% {
+        opacity: 1;
+    }   
+
+    100% {
+        opacity: 0;
+    }
+}
+  
+@keyframes modal-appear {
+    0% {
+        opacity: 0;
+        scale: 0;
+    }   
+
+    50% {
+        opacity: 1;
+        scale: 1.05;
+    }   
+
+    100% {
+        scale: 1;
+  }
+}
+  
+@keyframes modal-disappear {
+    0% {
+        scale: 1;
+        opacity: 1;
+    }   
+
+    50% {
+        scale: 1.05;    
+    }   
+
+    100% {
+        scale: 0;
+        opacity: 0;
+    }
+}
