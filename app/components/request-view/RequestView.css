@@ -1,0 +1,28 @@
+.request-view-content {
+    height: 80vh;
+    min-height: 600px;
+    width: 45vw;
+    min-width: 600px;
+    animation: fade-in 1s ease;
+}
+
+.request-view-content h2 {
+    margin: 2rem 0 2rem 0;
+    text-align: center;
+}
+
+.req-loader-container {
+    height: 80vh;
+    min-height: 600px;
+    width: 45vw;
+    min-width: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mark-req-done-btn-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

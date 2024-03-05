@@ -1,0 +1,207 @@
+.request-wrapper {
+    border-radius: inherit;
+    transition: all 300ms ease;
+  }
+  
+  .request-inner-wrapper {
+    border-radius: inherit;
+  }
+  
+  .print-request {
+    pointer-events: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top: 1rem;
+    width: 100%;
+    height: 120px;
+    border-radius: inherit;
+    border: 3px solid rgba(255, 255, 255, 0.75);
+    background-color: rgb(0, 0, 0, 0.15);
+    transition: all 300ms ease;
+    z-index: 2;
+  }
+  
+  .request-wrapper:hover {
+    scale: 1.01;
+  }
+  
+  .request-wrapper:hover .print-request {
+    border: 3px solid rgba(255, 255, 255, 1);
+  }
+  
+  .request-inner-wrapper.hiding-menu .hidden-menu {
+    animation: slide-up 150ms ease;
+  }
+  
+  .request-inner-wrapper.show-hidden-menu .hidden-menu {
+    display: flex;
+  }
+  
+  .hidden-menu {
+    pointer-events: none;
+    display: none;
+    position: relative;
+    font-weight: 600;
+    border-bottom: 3px solid white;
+    border-right: 3px solid white;
+    border-left: 3px solid white;
+    border-radius: 0 0 1.5rem 1.5rem;
+    z-index: 1;
+    height: 45px;
+    width: 95%;
+    margin: auto;
+    animation: slide-down 300ms ease;
+  }
+  
+  .hidden-contents {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fade-in 1s ease 50ms;
+  }
+  
+  .req-full-date {
+    opacity: .85;
+  }
+  
+  .req-finish-btn-container {
+    width: 150px;
+  }
+  
+  .req-file-count-container {
+    padding: 2px 6px;
+    margin-left: 1rem;
+    border-radius: 4px;
+    background-color: #4169e1;
+  }
+  
+  .req-finish-btn-container button {
+    font-size: .85rem;
+    float: right;
+    pointer-events: all;
+    user-select: none;
+    cursor: pointer;
+    font-weight: 600;
+    color: white;
+    margin-right: 1rem;
+    border-radius: 4px;
+    padding: 4px 8px;
+    transition: all 300ms ease;
+  }
+
+  .req-done-btn {
+    background-color: #0bda5097;
+  }
+
+  .req-done-label {
+    background-color: #b4b4b46b
+  }
+  
+  .req-finish-btn-container button:hover {
+    scale: 1.05;
+    text-transform: uppercase;
+  }
+  
+  .request-profile-container {
+    user-select: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 1;
+    height: 120px;
+  }
+  
+  .print-request-details {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: calc(100% - 120px);
+  }
+  
+  .print-request-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .req-name {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  
+  .req-email {
+    opacity: .8;
+    margin-left: 10px;
+    font-size: .85rem;
+  }
+  
+  .req-time {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+  }
+  
+  .print-request-details button {
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    padding: 8px 12px;
+    border-radius: 12px;
+    color: white;
+    border: 3px solid transparent;
+    background-color: rgba(0, 0, 0, 0.6);
+    margin-right: 2rem;
+    transition: all 300ms ease;
+  }
+  
+  .print-request-details button:hover {
+    border: 3px solid white;
+    box-shadow: rgba(255, 255, 255, 0.5) 0px 5px 50px -12px;
+  }
+  
+  .print-request-details button span {
+    margin-left: 8px;
+    font-size: 1.05rem;
+  }
+  
+  .request-profile-container img {
+    user-select: none;
+    height: 45%;
+    border-radius: 50%;
+  }
+  
+  .completed-btn-container {
+    display: flex;
+    align-items: center;
+    height: 8%;
+    width: 25%;
+  }
+  
+  .completed-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 65%;
+    width: 100%;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    border: 3px solid transparent;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: all 300ms ease
+  }
+  
+  .completed-btn span {
+    margin-left: 10px;
+  }
+  
+  .completed-btn:hover {
+    scale: 1.05;
+    border: 3px solid white;
+  }

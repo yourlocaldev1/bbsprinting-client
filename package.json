@@ -1,0 +1,30 @@
+{
+  "name": "bbs-printing",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@hcaptcha/react-hcaptcha": "^1.8.1",
+    "@react-oauth/google": "^0.12.1",
+    "ldrs": "^1.0.1",
+    "next": "^14.1.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-google-drive-picker": "^1.2.2",
+    "react-lottie": "^1.2.4"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "13.5.4"
+  },
+  "overrides": {
+    "react-lottie": {
+      "react": "^0.14.7 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0"
+    }
+  }
+}
