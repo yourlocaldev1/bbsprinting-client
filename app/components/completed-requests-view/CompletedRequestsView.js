@@ -41,7 +41,7 @@ const CompletedRequestsView = ({data: {setCompletedRequestsView, markDone, autho
 
         setCompletedRequests(data)
       })()
-    })
+    }, [])
 
   return (
     <>  

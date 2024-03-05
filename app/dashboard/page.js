@@ -54,7 +54,7 @@ useEffect(() => {
       getStats(token)
       connectToServer({token, setServer, updatePrinterStatus, onRequestSeen, onRequestDone})
   })()
-})
+}, [])
 
   const updatePrinterStatus = (printer) => {
     setPrinterStatus(oldStatus => {
