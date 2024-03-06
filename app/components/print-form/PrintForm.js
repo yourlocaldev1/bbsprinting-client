@@ -11,7 +11,7 @@ import useDrivePicker from 'react-google-drive-picker'
 import {Sleep, GOOGLE_CLIENT_ID, GOOGLE_API_KEY, getAccessToken, getFolderId, getIcon} from '../../config'
 import {GOOGLE_DRIVE_ICON} from '../../../public/svgs/icons'
 
-export default function PrintForm({data: {setPrintForm, sendRequest}}) {
+export default function PrintForm({data: {setPrintForm, sendRequest, userData}}) {
 
     const [files, setFiles] = useState([])
     const [fileIndex, setFileIndex] = useState(0)
@@ -338,7 +338,7 @@ export default function PrintForm({data: {setPrintForm, sendRequest}}) {
 
             <div className="printer-choice">
               <span>Using printer: </span>
-              <div>Repro KS3</div>
+              <div>{userData.printerEmail === "repro.ks3@belvederebritishschool.com" ? "KS3 Repro" : "Main Repro"}</div>
             </div>
 
             <div className="file-input">
