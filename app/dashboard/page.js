@@ -332,7 +332,7 @@ useEffect(() => {
   return (
     <div className='dashboard teacher'>
 
-      {showPrintForm ? <PrintForm data={{setPrintForm, sendRequest}}/> : null}
+      {showPrintForm ? <PrintForm data={{setPrintForm, sendRequest, userData}}/> : null}
       {showRequestProgress ? <RequestProgress data={{setRequestProgress, numberOfFiles, requestData}}/> : null}
 
       <div className="first-column column">
