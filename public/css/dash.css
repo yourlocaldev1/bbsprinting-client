@@ -405,7 +405,7 @@
   padding-right: 20px;
   gap: 20px;
   height: calc(20% - 1rem);
-  min-height: 175px;
+  min-height: 120px;
   min-width: 800px;
   /* height: 25vh;
     min-height: 180px; */
@@ -429,11 +429,11 @@
 }
 
 .active-printer:nth-child(1) {
-    border-radius: 3rem 1rem 1rem 3rem;
+    border-radius: 2rem .5rem .5rem 2rem;
 }
 
 .active-printer:nth-child(2) {
-    border-radius: 1rem 3rem 3rem 1rem;
+    border-radius: .5rem 2rem 2rem .5rem;
 }
 
 .active-printer:hover {
@@ -475,7 +475,7 @@
 
 .new-request {
   height: calc(20% - 1rem);
-  min-height: 175px;
+  min-height: 120px;
   min-width: 400px;
   /* height: 15vh;
     min-height: 125px;
@@ -496,7 +496,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   border-radius: 8px;
-  height: 60%;
+  height: 80%;
   width: 80%;
   background-color: #4169e1;
   box-shadow: rgba(0, 0, 0, 0.2) 0px 22px 70px 4px;
@@ -966,7 +966,7 @@
 }
 
 .main-details {
-  max-width: 70%;
+  max-width: 65%;
   height: 100%;
   text-align: start;
   display: flex;
@@ -975,6 +975,7 @@
 }
 
 .request-end {
+  margin-right: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

@@ -407,7 +407,6 @@ useEffect(() => {
       <div className="second-column column">
         <div className='active-printers-container card'>
           <div className='active-printer'>
-            <img draggable="false" src="/images/bbs-logo.png" alt="profile" />
             <h4 className='printer-name'>Main Repro</h4>
             <div className='printer-status'>
               <span className='status-text'>{printerStatus.main ? 'Online' : 'Offline'}</span>
@@ -416,7 +415,6 @@ useEffect(() => {
           </div>
 
           <div className='active-printer'>
-            <img draggable="false" src="/images/bbs-logo.png" alt="profile" />
             <h4 className='printer-name'>KS3 Repro</h4>
             <div className='printer-status'>
               <span className='status-text'>{printerStatus.ks3 ? 'Online' : 'Offline'}</span>

@@ -38,7 +38,7 @@ const Page = () => {
           setUserData({...data, token})
 
           loadIncomingRequests(token)
-          setInterval(() => {loadIncomingRequests(token)}, 5 * 60 * 1000)
+          setInterval(() => {loadIncomingRequests(token)}, 2 * 60 * 1000)
 
           connectToServer({token, setServer, onRequest, onRequestDelete})
         })()
