@@ -207,6 +207,7 @@
 }
 
 .copies-container input {
+    width: 100px;
     outline: none;
     border: 3px solid #4169e1;
     border-radius: 12px 0 12px 0;

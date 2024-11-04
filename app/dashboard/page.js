@@ -237,6 +237,7 @@ useEffect(() => {
 
   async function sendRequest(files, note = false) {
     setNumberOfFiles(files.length)
+    setRequestData(requestData => {return {...requestData, finished: false}})
     setRequestProgress(true)
 
     const payload = new FormData()

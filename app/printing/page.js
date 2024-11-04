@@ -47,7 +47,7 @@ const Page = () => {
       setIncomingRequests(previousRequests => [newRequest, ...previousRequests])
 
       sendNotification('New Request!', {
-        body: name,
+        body: name
       })
     }
 
