@@ -38,7 +38,7 @@ const FileViewer = ({files, fileNames = false}) => {
               <ul>
                     {a3 ? <li><span>A3</span></li> : <li><span>A4</span></li>}
                     {double ? <li><span>Double Sided</span></li> : <li><span>Single Sided</span></li>}
-                    {color ? <li><span>Color</span></li> : <li><span>Black and White</span></li>}
+                    {color ? <li><span>Colour</span></li> : <li><span>Black and White</span></li>}
                     {stapled ? <li><span>Stapled</span></li> : null}
                     {laminated ? <li><span>Laminated</span></li> : null}
                     {bound ? <li><span>Bound</span></li> : null}

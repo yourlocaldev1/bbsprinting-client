@@ -3,7 +3,6 @@
 import React, {useState, useRef, useEffect} from 'react'
 import './login.css'
 
-import CaptchaPopup from '../components/captcha/CaptchaPopup'
 import LoginButton from '../components/login/LoginButton'
 import {Api, GOOGLE_CLIENT_ID} from '../config'
 
@@ -14,10 +13,8 @@ export default function Page() {
 
   useEffect(() => {
     (async function getData() {
-      const token = localStorage.getItem('token')
-      if (!token) return
-
-      const {success, data} = await Api.get('account', {authorization: token})
+      
+      const {success, data} = await Api.get('account')
       if (!success) return localStorage.clear()
 
       let webpage;
@@ -32,9 +29,8 @@ export default function Page() {
       
       window.location.href = `../${webpage}`
     })()
-  }, []);
+  }, [])
 
-    const [credential, setCredential] = useState(null)
     const [tokens, setTokens] = useState({})
     const [info, setUserInfo] = useState({})
 
@@ -44,32 +40,31 @@ export default function Page() {
 
     const [googleAuth, setGoogleAuth] = useState(false)
     const [isLoading, setLoading] = useState(false)
-    const [captcha, setCaptcha] = useState(false)
-    const [solvedCaptcha, setSolvedCaptcha] = useState(false)
     const [error, setError] = useState(false)
 
 
     const arabicChoiceRef = useRef()
     const primaryChoiceRef = useRef()
     const schoolCodeRef = useRef()
+
+    function saveData({token, accessToken, folderId}) {
+      localStorage.setItem('token', token)
+      localStorage.setItem('accessToken', accessToken)
+      localStorage.setItem('access_expiry', +new Date(+new Date() + 3.5e6))
+      localStorage.setItem('folderId', folderId)
+    }
     
-    function verifyCaptcha(hCaptcha_token) {
-      setSolvedCaptcha(true)
+    function verifyCaptcha() {
       setLoading(true)
       setError(false)
-      register({tokens, ...info, schoolCode, hCaptcha_token})
-    }
-
-    function cancelCallBack() {
-      schoolCodeRef.current.disabled = false
-      setLoading(false)
+      register({tokens, ...info, schoolCode})
     }
 
     async function checkAccount(credential) {
-      const {success, data, error} = await Api.post('account/check', {payload: {credential}})
+      const {success, data, error} = await Api.post('account/check', {payload: {credential}}, false, false)
 
       if (!success) {
-        setTimeout(() => window.location.reload(), 5000)
+        setTimeout(() => window.location.reload(), 15000)
         if (error) return setError(error)
 
         return setError('Failed to login, please try again later.')
@@ -95,20 +90,16 @@ export default function Page() {
         setGoogleAuth(true)
 
       if (loginAvailable) {
-        const {success, data, error} = await Api.post('account/authorize', {payload: {tokens, login: true}})
+        const {success, data, error} = await Api.post('account/authorize', {payload: {tokens, login: true}}, false, false)
 
         if (!success) {
-          setTimeout(() => window.location.reload(), 5000)
+          setTimeout(() => window.location.reload(), 15000)
           if (error) return setError(error)
   
           return setError('Failed to login, please try again later.')
         }
 
-        const {token, accessToken, folderId} = data
-        localStorage.setItem('token', token)
-        localStorage.setItem('accessToken', accessToken)
-        localStorage.setItem('access_expiry', +new Date(+new Date() + 3.5e6))
-        localStorage.setItem('folderId', folderId)
+        saveData(data)
 
         if (data.role === 1) return window.location.href = '../printing'
         
@@ -119,10 +110,9 @@ export default function Page() {
     }
 
     async function register(payload) {
-      const {success, data, error} = await Api.post('account/authorize', {payload})
+      const {success, data, error} = await Api.post('account/authorize', {payload}, false, false)
 
       if (!success) {
-
         setLoading(false)
         schoolCodeRef.current.disabled = false
       
@@ -131,12 +121,9 @@ export default function Page() {
         return setError('Failed to register, please try again later.')
       }
 
-      const {token, accessToken} = data
-      localStorage.setItem('token', token)
-      localStorage.setItem('accessToken', accessToken)
-      localStorage.setItem('access_expiry', +new Date(+new Date() + 3.5e6))
+      saveData(data)
 
-      setTimeout(() => window.location.href = '../dashboard', 2000)
+      window.location.href = '../dashboard'
     }
 
     function selectRole(target, ref, value) {
@@ -149,8 +136,7 @@ export default function Page() {
 
     return (
       <div className='login'>
-      {captcha ? <CaptchaPopup data={{setCaptcha, verifyCaptcha, cancelCallBack}}/> : null}
-      <div className="login-card-container">
+\      <div className="login-card-container">
         <div className="login-card">
           <div className="login-contents">
               
@@ -161,11 +147,6 @@ export default function Page() {
             
             <div className='last-step'>
               <div className='role-selection'>
-                {/* <span>Role:</span>
-                <div ref={roleChoiceRef} className='role-choice'>
-                  <button name='1' className='selected' onClick={selectRole}>Teacher</button>
-                  <button name='2' onClick={selectRole}>Printing Staff</button>
-                </div> */}
 
                 <div className="role-choice-wrapper">
                   <span>Are you an arabic teacher?</span>
@@ -177,7 +158,7 @@ export default function Page() {
                 </div>
 
                 {typeof info.arabic === 'boolean' ? <div className="role-choice-wrapper">
-                <span>Education:</span>
+                <span>Stage of Education:</span>
 
                   <div ref={primaryChoiceRef} className='role-choice'>
                     <button onClick={({target}) => selectRole(target, primaryChoiceRef, {primary: true})}>Primary</button>
@@ -194,9 +175,7 @@ export default function Page() {
 
                 if (isLoading) return
 
-                setCaptcha(true)
-
-                schoolCodeRef.current.disabled = true
+                verifyCaptcha()
               }} className={`login-btn ${isLoading ? 'btn-loading' : ''}`}>{isLoading ? <div className="spinning-loader"></div> : 'GO!'}</button>
               : null}
             </div>
@@ -205,7 +184,7 @@ export default function Page() {
               
               <div className="google-sign-in">
                 <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-                  <LoginButton data={{setCredential, checkAccount, setError}} />
+                  <LoginButton data={{checkAccount, setError}} />
                 </GoogleOAuthProvider>
               </div>)
             }

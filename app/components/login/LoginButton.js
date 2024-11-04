@@ -3,13 +3,12 @@ import './LoginButton.css'
 import {useGoogleLogin} from '@react-oauth/google'
 import {GOOGLE_ICON} from '../../../public/svgs/icons'
 
-const LoginButton = ({data: {setCredential, checkAccount, setError}}) => {
+const LoginButton = ({data: {checkAccount, setError}}) => {
 
     const login = useGoogleLogin({
         scope: "https://www.googleapis.com/auth/drive",
         onSuccess: ({code}) => {
           setError(false)
-          setCredential(code)
           checkAccount(code)
         },
         flow: 'auth-code',

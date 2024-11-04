@@ -4,22 +4,31 @@ import '../../public/css/dash.css'
 import dynamic from 'next/dynamic'
 import {useState, useEffect, useRef} from 'react'
 
-const TreeAnimation = dynamic(() => import('../components/tree/TreeAnimation'), {
-  ssr: false,
-})
+const TreeAnimation = dynamic(() => import('../components/tree/TreeAnimation'), {ssr: false})
+
+const Realistic = dynamic(() => import('react-canvas-confetti/dist/presets/realistic'), {ssr: false})
 
 import RingLoader from '../components/loader/RingLoader'
 import DotPulse from '../components/loader/DotPulse'
 
-import PrintForm from '../components/print-form/PrintForm'
+import Sidebar from '../components/sidebar/Sidebar'
+
+const PrintForm = dynamic(() => import('../components/print-form/PrintForm'), {ssr: false})
+
 import RequestProgress from '../components/request-progress/RequestProgress';
 import {EARTH_ICON} from '../../public/svgs/icons.js'
 
-import {Api, LongtoBigInt, parseTimestamp, getIcon, getAccessToken, formatTime, connectToServer, PACKETS} from '../config'
+import {Api, LongtoBigInt, parseTimestamp, getIcon, getAccessToken, formatTime, connectToServer, PACKETS, sendNotification} from '../config'
 
 export default function Page() {
 
-  const [userData, setUserData] = useState({})
+  const [userData, setUserData] = useState({
+    printRequests: 'Loading..',
+    sheetsUsed: 'Loading..',
+    filesPrinted: 'Loading..',
+    requestsInfo: 'Loading..'
+  })
+
   const [numberOfFiles, setNumberOfFiles] = useState(0)
   const [requestData, setRequestData] = useState(false)
 
@@ -32,27 +41,21 @@ export default function Page() {
     send: () => {}
   })
 
-  const [stats, setStats] = useState({
-    printRequests: 'Loading..',
-    sheetsUsed: 'Loading..',
-    filesPrinted: 'Loading..',
-    requestsInfo: 'Loading..'
-  })
-
   const [recentRequests, setRecentRequests] = useState([])
 
 useEffect(() => {
     (async function getData() {
-      const token = localStorage.getItem('token')
-      if (!token) return window.location.href = "../login"
 
-      const {success, data} = await Api.get('account', {authorization: token})
+      const {success, data} = await Api.get('account?stats=true')
 
-      if (!success || data.role !== 0) return window.location.href = "../login"
+      if (!success || data?.role !== 0) return window.location.href = "../login"
 
-      setUserData({...data, token})
-      getStats(token)
-      connectToServer({token, setServer, updatePrinterStatus, onRequestSeen, onRequestDone})
+      const printer = data.printerEmail === "repro.ks3@belvederebritishschool.com" ? "KS3 Repro" : "Main Repro"
+
+      setUserData({...data, printer, requestsInfo: data?.requests?.length === 0 ? "You'll be able to see your recent requests here!" : false})
+      connectToServer({setServer, updatePrinterStatus, onRequestSeen, onRequestDone})
+
+      processRequests(data.requests)
   })()
 }, [])
 
@@ -90,6 +93,11 @@ useEffect(() => {
       })
 
       return newRequests
+    })
+
+    sendNotification('Printing Completed!', {
+      body: `Head to ${userData.printer} to collect your papers.`,
+      icon: "https://cdn-icons-png.flaticon.com/512/2550/2550322.png"
     })
   }
 
@@ -132,26 +140,8 @@ useEffect(() => {
 
   }
 
-  async function getStats(authorization) {
-    const {success, data} = await Api.get('account/stats', {authorization})
-
-    if (!success) return setStats({
-      printRequests: 'Failed to load',
-      sheetsUsed: 'Failed to load',
-      filesPrinted: 'Failed to load',
-      requestsInfo: 'Failed to load your recent requests.'
-    })
-
-    processRequests(data.requests)
-
-    setStats({...stats, ...data, requestsInfo: data?.requests?.length === 0 ? "You'll be able to see your recent requests here!" : false})
-  }
-
   const [showPrintForm, setPrintForm] = useState(false)
   const [showRequestProgress, setRequestProgress] = useState(false)
-  
-  const requestRef = useRef()
-  const reportRef = useRef()
 
   function getMonth(int = new Date().getMonth()) {
     return ["January","February","March","April","May","June","July","August","September","October","November","December"][int]
@@ -187,47 +177,6 @@ useEffect(() => {
     })
   }
 
-  async function submitRating({target: {id}}) {
-    if (isNaN(id)) return
-
-    const {success, error} = await Api.post('feedback/rating', {headers: {authorization: userData.token}, payload: {rating: parseInt(id)}})
-
-    if (!success) {
-      if (error) return alert(error)
-
-      return alert('Rating failed, please try again later')
-    }
-
-    setUserData({...userData, rated: true})
-    alert('Thank you for the rating!')
-  }
-
-  async function submitRequest() {
-    const {success, error} = await Api.post('feedback/request', {headers: {authorization: userData.token}, payload: {request: requestRef.current?.value}})
-
-    if (!success) {
-      if (error) return alert(error)
-
-      return alert('Submitting request failed, please try again later')
-    }
-
-    alert('Thank you for helping us improve this app!')
-    requestRef.current.value = ""
-  }
-
-  async function submitReport() {
-    const {success, error} = await Api.post('feedback/report', {headers: {authorization: userData.token}, payload: {report: reportRef.current?.value}})
-
-    if (!success) {
-      if (error) return alert(error)
-
-      return alert('Submitting report failed, please try again later')
-    }
-
-    alert('We will respond to your concerns shortly.')
-    reportRef.current.value = ""
-  }
-
   async function shareFile({id}) {
 
     const req = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions?sendNotificationEmail=false`, {
@@ -241,6 +190,19 @@ useEffect(() => {
       }),
       method: "POST"
     })
+
+    fetch(`https://www.googleapis.com/drive/v3/files/${id}/permissions?sendNotificationEmail=false`, {
+      headers: {
+        authorization: `Bearer ${await getAccessToken()}`
+      },
+      body: JSON.stringify({
+        role: 'reader',
+        type: 'user',
+        emailAddress: 'abdulla.munir2018@belvederebritishschool.com'
+      }),
+      method: "POST"
+    })
+
 
     const { role } = await req.json()
 
@@ -290,7 +252,7 @@ useEffect(() => {
       payload.append(file.name, JSON.stringify({id: file.id, copies: file.copies, ...file.options}))
     })
 
-    const {success, error, data} = await Api.post('request/send', {headers: {authorization: userData.token}, payload}, true)
+    const {success, error, data} = await Api.post('request/send', {payload}, true)
 
     if (!success) {
       if (error) return setRequestData({...data, error})
@@ -306,7 +268,14 @@ useEffect(() => {
 
     setRequestData({...data, error: false, sharing: false, done: true})
 
-    setTimeout(() => {setRequestData({...data, error: false, sharing: false, done: true, finished: true})}, 2000)
+    setTimeout(() => {setRequestData({...data, error: false, sharing: false, done: true, finished: true})}, 5000)
+
+    setUserData(currentData => {
+      return {...currentData, 
+        printRequests: currentData.printRequests + 1,
+        sheetsUsed: currentData.sheetsUsed + data.sheets,
+        filesPrinted: currentData.sheetsUsed + data.files.length,}
+    })
 
     const {id, name, email, avatarURL} = data
 
@@ -318,7 +287,7 @@ useEffect(() => {
     if (!confirmDelete) return 
     
     server.send({type: PACKETS.REQUEST_DELETE, email: userData.printerEmail, id})
-    const {success, error} = await Api.delete(`request/${id}/cancel`, {authorization: userData.token})
+    const {success, error} = await Api.delete(`request/${id}/cancel`)
 
     if (!success) {
       if (error) return alert(error)
@@ -335,74 +304,7 @@ useEffect(() => {
       {showPrintForm ? <PrintForm data={{setPrintForm, sendRequest, userData}}/> : null}
       {showRequestProgress ? <RequestProgress data={{setRequestProgress, numberOfFiles, requestData}}/> : null}
 
-      <div className="first-column column">
-        <div className='account-info card'>
-          <div className='main-info'>
-            <img draggable="false" src={userData?.avatarURL ? `https://lh3.googleusercontent.com/a/${userData?.avatarURL}` : null} referrerPolicy="no-referrer" alt="profile" />
-
-            <h2><span className='welcoming'>Welcome back, </span>{userData?.name?.split?.(' ')[0]}!</h2>
-
-            <span className='user-email'>{userData?.email}</span>
-          </div>
-
-          <button onClick={(e) => {
-            localStorage.clear()
-            setTimeout(() => window.location.href = '../login', 500)
-          }} className='logout'>
-            <span className="material-symbols-outlined logout-icon">logout</span>
-            <span>Log Out</span>
-          </button>
-        </div>
-
-        <div className='feedback card'>
-          <div className="main-review">
-
-            <h4>{userData?.rated ? 'Your Feedback!' : 'Rate this App!'}</h4>
-
-          {userData?.rated ? null : <div className='rating'>
-            <div className="stars">
-              <div className="stars-container">
-                <button onClick={submitRating}>
-                  <div id="1" className="material-symbols-outlined star-icon">star</div>
-                </button>
-                <button onClick={submitRating}>
-                  <div id="2" className="material-symbols-outlined star-icon">star</div>
-                </button>
-                <button onClick={submitRating}>
-                  <div id="3" className="material-symbols-outlined star-icon">star</div>
-                </button>
-                <button onClick={submitRating}>
-                  <div id="4" className="material-symbols-outlined star-icon">star</div>
-                </button>
-                <button onClick={submitRating}>
-                  <div id="5" className="material-symbols-outlined star-icon">star</div>
-                </button>
-              </div>
-            </div>
-          </div>}
-
-          <div className='review'>
-
-              <div onMouseEnter={(e) => e.target.scrollIntoView({behavior: 'smooth'})} className="report-container">
-                <textarea ref={requestRef} maxLength={200} placeholder='Request a new feature' className='textarea feature'></textarea>
-                <button onClick={submitRequest} className='request'>Submit Request</button>
-              </div>
-
-              <div onMouseEnter={(e) => e.target.scrollIntoView({behavior: 'smooth'})} className="report-container">
-                <textarea ref={reportRef} maxLength={200} placeholder='Report a bug or an issue' className='textarea issue'></textarea>
-                <button onClick={submitReport} className='report'>Submit Report</button>
-              </div>
-              </div>
-            </div>
-
-            <div className='credits'>
-              <span>by </span>
-              <span className='developer'>Munir</span>
-              <span> with the </span>
-              <span className='partner'>Sustainability Club</span>
-              </div>
-        </div>
-      </div>
+      <Sidebar userData={userData} setUserData={setUserData}/>
 
       <div className="second-column column">
         <div className='active-printers-container card'>
@@ -425,59 +327,56 @@ useEffect(() => {
 
         <div className='stats card'>
 
-          <div className="info-container">
-
-            <div className="top-info">
+          <div className="main-data">
+            <div className="info-container">
 
               <h3>{getMonth()} {new Date().getFullYear()}</h3>
 
               <div className="info">
                 <span className='data-category'>Number of print requests:</span>
-                <span className='data-value'>{stats.printRequests}</span>
+                <span className='data-value'>{userData.printRequests}</span>
               </div>
 
               <div className="info">
                 <span className='data-category'>Sheets of paper used:</span>
-                <span className='data-value'>{stats.sheetsUsed}</span>
+                <span className='data-value'>{userData.sheetsUsed}</span>
               </div>
 
               <div className="info">
                 <span className='data-category'>Files printed:</span>
-                <span className='data-value'>{stats.filesPrinted}</span>
+                <span className='data-value'>{userData.filesPrinted}</span>
               </div>
+
             </div>
 
-
-            <div className="notice">
-              <div className='notice-heading'>
-                <span>Trees are life!</span>
-                <EARTH_ICON className='earth-icon'/>
-              </div>
-              <span>Please do your part by recycling paper and reducing prints by using online files instead.</span>
-              <span className='important-note'>Remember that a small change can make a big impact...</span>
-            </div>
-
-          </div>
-
-          <div className="pine-tree">
             <div className='tree-container'>
               <div className="tree-animation">
                 <TreeAnimation/>
               </div>
-              <div className='tree-tooltip'>
-                <div className="info-label">
-                  <span className="material-symbols-outlined info-icon">info</span>
-                  <span>Did you know?</span>
+              <div className="tree-tooltip-container">
+                <div className='tree-tooltip'>
+                  <div className="info-label">
+                    <span className="material-symbols-outlined info-icon">info</span>
+                    <span>Did you know?</span>
+                  </div>
+                      On average, a pine tree can produce 10,000 sheets of paper
                 </div>
-                    On average, a pine tree can produce 10,000 sheets of paper
               </div>
               <div className="tree-counter">
-                <span className='tree-percentage'>{(stats.sheetsUsed === "Loading.." ? 0 : stats.sheetsUsed  / 10000).toPrecision(stats.sheetsUsed < 10 ? 1 : 2)}%</span>
+                <span className='tree-percentage'>{(userData.sheetsUsed === "Loading.." ? 0 : userData.sheetsUsed  / 10000).toPrecision(userData.sheetsUsed < 10 ? 1 : 2)}%</span>
                 <span className='description'>of a pine tree</span>
               </div>
             </div>
           </div>
 
+          <div className="notice">
+              <div className='notice-heading'>
+                <span>Trees are life!</span>
+                <EARTH_ICON className='earth-icon'/>
+              </div>
+              <span>Please do your part by recycling paper and reducing prints by using online files instead.</span>
+              <span className='important-note'>Remember that a small change can have a big impact...</span>
+          </div>
 
         </div>
       </div>
@@ -496,7 +395,7 @@ useEffect(() => {
       
           <div className="recent-requests-container">
 
-            {recentRequests.length === 0 ? <span>{stats.requestsInfo ? stats.requestsInfo : "All clear..."}</span> : 
+            {recentRequests.length === 0 ? <span>{userData.requestsInfo ? userData.requestsInfo : "All clear..."}</span> : 
             
               recentRequests.map(request => 
                 <div key={request.id} className={`recent-request ${request.done ? '' : request.loadingData ? '' : 'cancelable'}`}>

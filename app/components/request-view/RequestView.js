@@ -10,7 +10,7 @@ import RingLoader from '../loader/RingLoader'
 
 import { Api } from '../../config'
 
-const RequestView = ({data: {setRequestView, requestId, authorization}}) => {
+const RequestView = ({data: {setRequestView, requestId}}) => {
 
     const [requestData, setRequestData] = useState(false)
 
@@ -23,7 +23,7 @@ const RequestView = ({data: {setRequestView, requestId, authorization}}) => {
 
     useEffect(() => {
       (async function getRequestData() {
-        const {success, error, data} = await Api.get(`request/find/${requestId}`, {authorization})
+        const {success, error, data} = await Api.get(`request/find/${requestId}`)
 
         if (!success) {
           if (error) return alert(error)

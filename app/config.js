@@ -1,16 +1,26 @@
 import {PDF_ICON, DOC_ICON, XLS_ICON, PPT_ICON, IMAGE_ICON, DEFAULT_FILE_ICON, MULTIPLE_FILES_ICON} from '../public/svgs/icons'
 
-const backendUrl = 'https://bbsprinting-server.onrender.com/'
-const socketUrl = 'wss://bbsprinting-server.onrender.com/server'
-const bbsPrintingEpoch = 1672516800000
-const CAPTCHA_SITE_KEY = '1709a7fb-56c0-4958-9af6-c18ebca39767'
-const GOOGLE_CLIENT_ID = "567690812822-k3ub2kd5mmcqcrp60jf1mlqd9bf85t86.apps.googleusercontent.com"
-const GOOGLE_API_KEY = "AIzaSyDt2v7Ns0uy-VXCzsJrIY-V4YYeSNkmCkM"
-
 const Regex = {
     ID: /^\d{17,19}$/,
     TOKEN: /^([a-zA-Z0-9-_]{23,28}):([a-zA-Z0-9-_]{10,14}):([a-zA-Z0-9-_]{43})$/
 }
+
+let testing = false,
+    authorization = false;
+
+if (typeof window !== "undefined") {
+    testing = location.hostname === "localhost" ? true : false
+    authorization = localStorage.getItem('token') || false
+
+    if (!(authorization && Regex.TOKEN.test(authorization)) && location.pathname !== "/login") location.pathname = "/login"
+}
+
+const backendUrl = testing ? 'http://localhost:6969/' : 'https://bbsprinting-server.onrender.com/'   
+const socketUrl = testing ? 'ws://localhost:6969/server' : 'wss://bbsprinting-server.onrender.com/server'
+const bbsPrintingEpoch = 1672516800000
+const CAPTCHA_SITE_KEY = '1709a7fb-56c0-4958-9af6-c18ebca39767'
+const GOOGLE_CLIENT_ID = "567690812822-k3ub2kd5mmcqcrp60jf1mlqd9bf85t86.apps.googleusercontent.com"
+const GOOGLE_API_KEY = "AIzaSyDt2v7Ns0uy-VXCzsJrIY-V4YYeSNkmCkM"
 
 function LongtoBigInt({low, high, unsigned}) {
     low = BigInt.asUintN(32, BigInt(low))
@@ -56,11 +66,18 @@ const PACKETS = {
     REQUEST_DELETE: 6
 }
 
+const handleError = (error) => {
+    console.log(`Request failed, ${error}`)
+    return {success: false}
+}
+
 const Api = {
 
-    async get(endpoint, headers) {
+    async get(endpoint, headers = {}, includeAuth = true) {
 
-        try {
+       try {
+            if (includeAuth && authorization) headers.authorization = authorization
+
             const req = await fetch(`${backendUrl}${endpoint}`, {
                 headers: {"content-type": "application/json", ...headers}
             })
@@ -77,18 +94,19 @@ const Api = {
             }
 
         } catch (error) {
-            console.log(`Request failed, ${error}`)
-            return {success: false}        
+            return handleError(error)
         }
     },
     
-    async post(endpoint, {headers, payload}, file = false) {
-
+    async post(endpoint, {headers = {}, payload}, formData = false, includeAuth = true) {
+        
         try {
+            if (includeAuth && authorization) headers.authorization = authorization
+
             const req = await fetch(`${backendUrl}${endpoint}`, {
                 method: "POST",
-                headers: file ? headers : {"content-type": "application/json", ...headers},
-                body: file ? payload : JSON.stringify(payload)
+                headers: formData ? headers : {"content-type": "application/json", ...headers},
+                body: formData ? payload : JSON.stringify(payload)
             })
             
             const data = await req.json()
@@ -103,18 +121,19 @@ const Api = {
             }
 
         } catch (error) {
-            console.log(`Request failed, ${error}`)
-            return {success: false} 
+            return handleError(error)
         }
     },
 
-    async patch(endpoint, {headers, payload}, file = false) {
+    async patch(endpoint, {headers = {}, payload}, formData = false, includeAuth = true) {
 
         try {
+            if (includeAuth && authorization) headers.authorization = authorization
+
             const req = await fetch(`${backendUrl}${endpoint}`, {
                 method: "PATCH",
-                headers: file ? headers : {"content-type": "application/json", ...headers},
-                body: file ? payload : JSON.stringify(payload)
+                headers: formData ? headers : {"content-type": "application/json", ...headers},
+                body: formData ? payload : JSON.stringify(payload)
             })
     
             const data = await req.json()
@@ -125,14 +144,15 @@ const Api = {
             return {success: true, data, error: false}
 
         } catch (error) {
-            console.log(`Request failed, ${error}`)
-            return {success: false}
+            return handleError(error)
         }
     },
 
-    async delete(endpoint, headers) {
+    async delete(endpoint, headers = {}, includeAuth = true) {
 
         try {
+            if (includeAuth && authorization) headers.authorization = authorization
+
             const req = await fetch(`${backendUrl}${endpoint}`, {
                 method: "DELETE",
                 headers
@@ -145,8 +165,7 @@ const Api = {
             return {success: true, error: false}
 
         } catch (error) {
-            console.log(`Request failed, ${error}`)
-            return {success: false}
+            return handleError(error)
         }
     }
 }
@@ -158,9 +177,7 @@ async function getAccessToken() {
         if (currentAccessToken) return currentAccessToken
     }
 
-    const {success, data, error} = await Api.get('account/auth/refresh', {
-        authorization: localStorage.getItem('token')
-    })
+    const {success, data, error} = await Api.get('account/auth/refresh')
 
     if (!success) {
         if (error) {
@@ -184,9 +201,7 @@ async function getFolderId() {
     const stored = localStorage.getItem('folderId')
     if (stored) return stored
 
-    const {success, data, error} = await Api.get('account/folder', {
-        authorization: localStorage.getItem('token')
-    })
+    const {success, data, error} = await Api.get('account/folder')
 
       if (!success) {
         if (error) {
@@ -235,7 +250,7 @@ function getIcon(type, class_name) {
       }
 }
 
-function connectToServer({token, setServer, updatePrinterStatus = () => {}, onRequest = () => {}, onRequestSeen = () => {}, onRequestDone = () => {}, onRequestUndone = () => {}, onRequestDelete = () => {}}) {
+function connectToServer({setServer = false, updatePrinterStatus = () => {}, onRequest = () => {}, onRequestSeen = () => {}, onRequestDone = () => {}, onRequestUndone = () => {}, onRequestDelete = () => {}}) {
     
     let ponged = false,
         socket,
@@ -244,7 +259,7 @@ function connectToServer({token, setServer, updatePrinterStatus = () => {}, onRe
     function newConnection() {
         clearInterval(pingInterval)
 
-        socket = new WebSocket(`${socketUrl}?auth=${token}`)
+        socket = new WebSocket(`${socketUrl}?auth=${authorization}`)
 
         socket.addEventListener('open', () => {
 
@@ -254,16 +269,14 @@ function connectToServer({token, setServer, updatePrinterStatus = () => {}, onRe
                 socket?.send?.(stringifyMsg(msgData))
             }
 
-            setServer({send: sendMsg})
+            if (setServer) setServer({send: sendMsg})
 
             pingInterval = setInterval(() => {
                 ponged = false
                 sendMsg({type: PACKETS.PING})
     
                 setTimeout(() => {
-                    if (!ponged) {
-                        setTimeout(newConnection, 5000)
-                    }
+                    if (!ponged) newConnection()
                 }, 15000)
             }, 30000)
 
@@ -295,16 +308,21 @@ function connectToServer({token, setServer, updatePrinterStatus = () => {}, onRe
             }
         })
 
-        socket.addEventListener('error', (event) => {
+        socket.addEventListener('error', () => {
             window.location.reload()
         })
 
-        socket.addEventListener('close', (event) => {
-            setTimeout(newConnection, 2000)
-        })
+        socket.addEventListener('close', newConnection)
     }
 
     newConnection()
+}
+
+async function sendNotification(message, options = {}) {
+    const state = await Notification.requestPermission()
+    if (state !== 'granted' || !document.hidden) return
+
+    return new Notification(message, options)
 }
 
 export {
@@ -320,5 +338,6 @@ export {
     formatTime,
     getIcon,
     LongtoBigInt,
-    PACKETS
+    PACKETS,
+    sendNotification
 }

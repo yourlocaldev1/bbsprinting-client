@@ -9,7 +9,7 @@ import './CompletedRequestsView.css'
 
 import { Api, LongtoBigInt, parseTimestamp } from '../../config'
 
-const CompletedRequestsView = ({data: {setCompletedRequestsView, markDone, authorization, updateSeen}}) => {
+const CompletedRequestsView = ({data: {setCompletedRequestsView, markDone, updateSeen}}) => {
 
     const [completedRequests, setCompletedRequests] = useState([])
 
@@ -26,7 +26,7 @@ const CompletedRequestsView = ({data: {setCompletedRequestsView, markDone, autho
 
     useEffect(() => {
       (async function getRequestData() {
-        const {success, error, data} = await Api.get(`request/printing?done=true`, {authorization})
+        const {success, error, data} = await Api.get(`request/printing?done=true`)
 
         if (!success) {
           if (error) return alert(error)
@@ -58,7 +58,7 @@ const CompletedRequestsView = ({data: {setCompletedRequestsView, markDone, autho
             </div>
         </Modal>
 
-        {requestView ? <RequestView data={{setRequestView, requestId, authorization}} setRequestId={setRequestId} setRequestView={setRequestView}/> : null}
+        {requestView ? <RequestView data={{setRequestView, requestId}} setRequestId={setRequestId} setRequestView={setRequestView}/> : null}
     </>
   )
 }

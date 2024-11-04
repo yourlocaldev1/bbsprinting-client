@@ -1,12 +1,12 @@
 .google-login-btn {
-    font-size: 1rem;
+    font-size: 1.25rem;
     font-weight: 600;
     color: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 45%;
-    height: 40px;
+    width: 60%;
+    height: 65px;
     border-radius: 8px;
     background-color: transparent;
     border: 3px solid #4286f491;
@@ -19,11 +19,11 @@
     color: white;
     scale: 1.05;
     transform: translateY(-4px);
-    box-shadow: 0px 0px 25px 10px rgba(46, 229, 157, 0.4);
+    box-shadow: 0px 0px 25px 10px rgba(46, 229, 157, 0.25);
 }
 
 .google-login-icon {
-    margin-right: 12px;
-    height: 20px;
-    width: 20px;
+    margin-right: 1rem;
+    height: 30px;
+    width: 30px;
 }

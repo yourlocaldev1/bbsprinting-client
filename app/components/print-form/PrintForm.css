@@ -103,7 +103,7 @@
 }
 
 .file-preview-container {
-    border-radius: 12px;
+    border-radius: 12px 4px 4px 12px;
     max-height: 50%;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
